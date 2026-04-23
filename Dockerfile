@@ -1,7 +1,7 @@
 # পাইথন বেস ইমেজ
 FROM python:3.11-slim
 
-# প্রয়োজনীয় সিস্টেম ডিপেন্ডেন্সি ইনস্টল করা (gcc এবং অন্যান্য বিল্ড টুলস সহ)
+# প্রয়োজনীয় সিস্টেম টুলস ইনস্টল করা
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     gcc \
@@ -12,13 +12,13 @@ RUN apt-get update && apt-get install -y \
 # কাজের ডিরেক্টরি
 WORKDIR /app
 
-# ফাইলগুলো কপি করা
+# সব ফাইল কপি করা
 COPY . .
 
-# সরাসরি ডিপেন্ডেন্সিগুলো ইনস্টল করা
+# ডিপেন্ডেন্সিগুলো ইনস্টল করা (standard সহ)
 RUN pip install --no-cache-dir \
-    fastapi \
-    "uvicorn[standard]" \
+    "fastapi[standard]" \
+    uvicorn \
     yt-dlp \
     sqlmodel \
     pydantic \
@@ -29,9 +29,9 @@ RUN pip install --no-cache-dir \
     innertube \
     yt-dlp-bonus
 
-# রেন্ডার পোর্টের জন্য এনভায়রনমেন্ট ভ্যারিয়েবল (Render ডিফল্ট ১০০০০ ব্যবহার করে)
-ENV PORT=10000
+# রেন্ডারের ডিফল্ট পোর্ট ১০০০০
+EXPOSE 10000
 
-# সার্ভার চালু করার কমান্ড
-# এখানে 'app:app' মানে app ফোল্ডারের ভেতর __init__.py থেকে 'app' অবজেক্টটি রান হবে
-CMD ["python", "-m", "fastapi", "run", "app", "--host", "0.0.0.0", "--port", "10000"]
+# ইউভিকর্ন (Uvicorn) দিয়ে সরাসরি রান করা
+# এখানে 'app:app' মানে app ফোল্ডারের ভেতরের __init__.py ফাইলে থাকা app অবজেক্ট
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
